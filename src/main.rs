@@ -12,6 +12,7 @@ fn main() {
     println!("Magic packet: {:?}", magic_packet);
 }
 
+// MAC アドレスを受け取り、その MAC アドレスに対応する Magic Packet を生成する
 fn create_magic_packet(mac_address: &str) -> Result<Vec<u8>, ParseIntError> {
     let mut magic_packet: Vec<u8> = vec![0xff; 6];
     for _ in 0..16 {
@@ -21,6 +22,7 @@ fn create_magic_packet(mac_address: &str) -> Result<Vec<u8>, ParseIntError> {
     Ok(magic_packet)
 }
 
+// MAC アドレスを 16 進数のベクタに変換する
 fn parse_mac_address(mac_address: &str) -> Result<Vec<u8>, ParseIntError> {
     let mut parsed: Vec<u8> = Vec::new();
     for octet in mac_address.split(":") {
@@ -29,7 +31,7 @@ fn parse_mac_address(mac_address: &str) -> Result<Vec<u8>, ParseIntError> {
     Ok(parsed)
 }
 
-// --- test code ---
+// --- テストコード ---
 
 #[cfg(test)]
 mod tests {
