@@ -1,10 +1,15 @@
 use std::num::ParseIntError;
+use clap::Parser;
 
 fn main() {
-    let mac_address = "00:11:22:33:44:55";
-    let magic_packet: Vec<u8> = match create_magic_packet(mac_address) {
+    // コマンドライン引数をパースし、MAC アドレスを取得する
+    let args = Args::parse();
+    let mac_address: String = args.mac_address;
+
+    // Magic Packet を生成する
+    let magic_packet: Vec<u8> = match create_magic_packet(&mac_address) {
         Ok(packet) => packet,
-        Err(e) => {
+        Err(e) => { // エラーは表示して、プログラムを終了する
             eprintln!("Error: {}", e);
             return;
         }
@@ -29,6 +34,14 @@ fn parse_mac_address(mac_address: &str) -> Result<Vec<u8>, ParseIntError> {
         parsed.push(u8::from_str_radix(octet, 16)?);
     }
     Ok(parsed)
+}
+
+#[derive(Debug, Parser)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Name of the person to greet
+    #[arg(value_name = "MAC_ADDRESS")]
+    mac_address: String,
 }
 
 // --- テストコード ---
