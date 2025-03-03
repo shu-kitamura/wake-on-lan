@@ -1,4 +1,7 @@
-use std::num::ParseIntError;
+use std::{
+    net::UdpSocket,
+    num::ParseIntError
+};
 use clap::Parser;
 
 fn main() {
@@ -14,7 +17,21 @@ fn main() {
             return;
         }
     };
-    println!("Magic packet: {:?}", magic_packet);
+    
+    // Magic Packet を送信する
+    match send_magic_packet(magic_packet) {
+        Ok(_) => println!("Magic Packet sent successfully"),
+        Err(e) => eprintln!("Error: {}", e)
+    }
+}
+
+// --- コマンドライン引数の定義 ---
+#[derive(Debug, Parser)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Name of the person to greet
+    #[arg(value_name = "MAC_ADDRESS")]
+    mac_address: String,
 }
 
 // MAC アドレスを受け取り、その MAC アドレスに対応する Magic Packet を生成する
@@ -36,12 +53,11 @@ fn parse_mac_address(mac_address: &str) -> Result<Vec<u8>, ParseIntError> {
     Ok(parsed)
 }
 
-#[derive(Debug, Parser)]
-#[command(version, about, long_about = None)]
-struct Args {
-    /// Name of the person to greet
-    #[arg(value_name = "MAC_ADDRESS")]
-    mac_address: String,
+// Magic Packet をブロードキャストアドレス(udp の 9 番)に送信する
+fn send_magic_packet(magic_packet: Vec<u8>) -> Result<usize, std::io::Error> {
+    let socket: UdpSocket = UdpSocket::bind("0.0.0.0:0")?;
+    socket.set_broadcast(true)?;
+    socket.send_to(&magic_packet, "255.255.255.155:9")
 }
 
 // --- テストコード ---
