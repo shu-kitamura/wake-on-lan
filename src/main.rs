@@ -9,7 +9,7 @@ fn main() {
     let args = Args::parse();
     let mac_address: String = args.mac_address;
 
-    // Magic Packet を生成する
+    // マジックパケットを生成する
     let magic_packet: Vec<u8> = match create_magic_packet(&mac_address) {
         Ok(packet) => packet,
         Err(e) => { // エラーは表示して、プログラムを終了する
@@ -18,25 +18,28 @@ fn main() {
         }
     };
     
-    // Magic Packet を送信する
+    // マジックパケットを送信する
     match send_magic_packet(magic_packet) {
-        Ok(_) => println!("Magic Packet sent successfully"),
+        Ok(_) => println!("Magic Packet sent to {mac_address}"),
         Err(e) => eprintln!("Error: {}", e)
     }
 }
 
-// --- コマンドライン引数の定義 ---
+// コマンドライン引数の定義
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// Name of the person to greet
+    /// MAC ADDRESS
     #[arg(value_name = "MAC_ADDRESS")]
     mac_address: String,
 }
 
-// MAC アドレスを受け取り、その MAC アドレスに対応する Magic Packet を生成する
+// MAC アドレスを受け取り、その MAC アドレスに対応するマジックパケットを生成する
 fn create_magic_packet(mac_address: &str) -> Result<Vec<u8>, ParseIntError> {
+    // FF:FF:FF:FF:FF:FF という 6 バイトのヘッダを生成
     let mut magic_packet: Vec<u8> = vec![0xff; 6];
+
+    // MAC アドレスを 16 回繰り返して追加する
     for _ in 0..16 {
         let parsed_address: Vec<u8> = parse_mac_address(mac_address)?;
         magic_packet.extend_from_slice(&parsed_address);
@@ -53,7 +56,7 @@ fn parse_mac_address(mac_address: &str) -> Result<Vec<u8>, ParseIntError> {
     Ok(parsed)
 }
 
-// Magic Packet をブロードキャストアドレス(udp の 9 番)に送信する
+// マジックパケットをブロードキャストアドレスの udp のポート9に送信する
 fn send_magic_packet(magic_packet: Vec<u8>) -> Result<usize, std::io::Error> {
     let socket: UdpSocket = UdpSocket::bind("0.0.0.0:0")?;
     socket.set_broadcast(true)?;
