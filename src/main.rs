@@ -57,7 +57,7 @@ fn parse_mac_address(mac_address: &str) -> Result<Vec<u8>, ParseIntError> {
 fn send_magic_packet(magic_packet: Vec<u8>) -> Result<usize, std::io::Error> {
     let socket: UdpSocket = UdpSocket::bind("0.0.0.0:0")?;
     socket.set_broadcast(true)?;
-    socket.send_to(&magic_packet, "255.255.255.155:9")
+    socket.send_to(&magic_packet, "255.255.255.255:9")
 }
 
 // --- テストコード ---
